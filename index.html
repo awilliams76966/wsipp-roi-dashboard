@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSIPP Public Health Interventions ROI Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <header class="mb-8 text-center md:text-left border-b border-gray-200 pb-6">
+            <h1 class="text-3xl font-extrabold text-blue-900">WSIPP Public Health Interventions</h1>
+            <p class="text-gray-600 mt-2 max-w-2xl">
+                An interactive dashboard showcasing the benefit-cost results and Return on Investment (ROI) profiles evaluated by the <a href="https://www.wsipp.wa.gov" target="_blank" class="text-blue-600 underline hover:text-blue-800">Washington State Institute for Public Policy</a>.
+            </p>
+        </header>
+
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <div class="inline-flex rounded-md shadow-xs bg-white p-1 border border-gray-200" role="group">
+                <button id="btn-savings" onclick="changeMetric('savings')" class="px-5 py-2.5 text-sm font-medium rounded-md transition-all duration-200 bg-blue-600 text-white cursor-pointer shadow-xs">
+                    Rank by Total Savings ($)
+                </button>
+                <button id="btn-roi" onclick="changeMetric('roi')" class="px-5 py-2.5 text-sm font-medium rounded-md transition-all duration-200 text-gray-700 hover:text-blue-600 cursor-pointer">
+                    Rank by ROI Multiplier (x)
+                </button>
+            </div>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-200 px-3 py-1 rounded-full">
+                Interactive View
+            </span>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-xs border border-gray-150 mb-10">
+            <h2 id="chart-title" class="text-xl font-bold text-gray-800 mb-4 text-center sm:text-left">Public Health Interventions Ordered by Total Savings ($)</h2>
+            <div class="relative w-full h-[450px]">
+                <canvas id="wsippChart"></canvas>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Intervention Directory by Category</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+                <h3 class="text-lg font-bold text-indigo-900 border-b pb-2 mb-3">Substance Use Control</h3>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="https://www.wsipp.wa.gov/benefitcost" target="_blank" class="font-semibold text-blue-600 hover:underline block">Comprehensive Tobacco Control</a>
+                        <span class="text-xs text-gray-500">Savings: $33,709 / part. | ROI: 133.07x</span>
+                    </li>
+                    <li>
+                        <a href="https://www.wsipp.wa.gov/BenefitCost/Program/115" target="_blank" class="font-semibold text-blue-600 hover:underline block">Communities That Care (CTC)</a>
+                        <span class="text-xs text-gray-500">Savings: $3,394 / part. | ROI: 5.69x</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+                <h3 class="text-lg font-bold text-emerald-900 border-b pb-2 mb-3">Mental Health & School Programs</h3>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="https://www.wsipp.wa.gov/BenefitCost/Program/538" target="_blank" class="font-semibold text-blue-600 hover:underline block">Positive Action (School-wide)</a>
+                        <span class="text-xs text-gray-500">Savings: $46,968 / part. | ROI: 182.07x</span>
+                    </li>
+                    <li>
+                        <a href="https://www.wsipp.wa.gov/benefitcost" target="_blank" class="font-semibold text-blue-600 hover:underline block">Dialectical Behavior Therapy (DBT)</a>
+                        <span class="text-xs text-gray-500">Savings: $55,469 / part. | ROI: 32.49x</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+                <h3 class="text-lg font-bold text-amber-900 border-b pb-2 mb-3">Youth & Family Therapy</h3>
+                <ul class="space-y-3">
+                    <li>
+                        <a href="https://www.wsipp.wa.gov/benefitcost" target="_blank" class="font-semibold text-blue-600 hover:underline block">Functional Family Therapy (FFT)</a>
+                        <span class="text-xs text-gray-500">Savings: $162,824 / part. | ROI: 18.71x</span>
+                    </li>
+                    <li>
+                        <a href="https://www.wsipp.wa.gov/benefitcost" target="_blank" class="font-semibold text-blue-600 hover:underline block">Parenting with Love and Limits (PLL)</a>
+                        <span class="text-xs text-gray-500">Savings: $39,693 / part. | ROI: 12.30x</span>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Data sets representing core WSIPP metric parameters
+        const interventionData = [
+            { name: "Functional Family Therapy", savings: 162824, roi: 18.71, category: "Youth & Family" },
+            { name: "Dialectical Behavior Therapy", savings: 55469, roi: 32.49, category: "Mental Health" },
+            { name: "Positive Action Program", savings: 46968, roi: 182.07, category: "Mental Health" },
+            { name: "Parenting with Love & Limits", savings: 39693, roi: 12.30, category: "Youth & Family" },
+            { name: "Tobacco Control Program", savings: 33709, roi: 133.07, category: "Substance Use" },
+            { name: "Communities That Care (CTC)", savings: 3394, roi: 5.69, category: "Substance Use" }
+        ];
+
+        let currentChart;
+
+        function renderChart(sortBy) {
+            // Sort data dynamically depending on current user tab selection
+            const sortedData = [...interventionData].sort((a, b) => b[sortBy] - a[sortBy]);
+            
+            const labels = sortedData.map(item => item.name);
+            const values = sortedData.map(item => item[sortBy]);
+            const isSavings = sortBy === 'savings';
+
+            const ctx = document.getElementById('wsippChart').getContext('2d');
+            
+            // Clean up existing instance if switching tabs
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: isSavings ? 'Net Savings per Participant ($)' : 'Return on Investment Multiplier (x)',
+                        data: values,
+                        backgroundColor: isSavings ? 'rgba(37, 99, 235, 0.75)' : 'rgba(245, 158, 11, 0.75)',
+                        borderColor: isSavings ? 'rgb(29, 78, 216)' : 'rgb(217, 119, 6)',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return isSavings ? '$' + value.toLocaleString() : value + 'x';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function changeMetric(metric) {
+            const btnSavings = document.getElementById('btn-savings');
+            const btnRoi = document.getElementById('btn-roi');
+            const title = document.getElementById('chart-title');
+
+            if (metric === 'savings') {
+                btnSavings.className = "px-5 py-2.5 text-sm font-medium rounded-md transition-all duration-200 bg-blue-600 text-white cursor-pointer shadow-xs";
+                btnRoi.className = "px-5 py-2.5 text-sm font-medium rounded-md transition-all duration-200 text-gray-700 hover:text-blue-600 cursor-pointer";
+                title.innerText = "Public Health Interventions Ordered by Total Savings ($)";
+                renderChart('savings');
+            } else {
+                btnRoi.className = "px-5 py-2.5 text-sm font-medium rounded-md transition-all duration-200 bg-amber-500 text-white cursor-pointer shadow-xs";
+                btnSavings.className = "px-5 py-2.5 text-sm font-medium rounded-md transition-all duration-200 text-gray-700 hover:text-blue-600 cursor-pointer";
+                title.innerText = "Public Health Interventions Ordered by ROI Multiplier (x Factor)";
+                renderChart('roi');
+            }
+        }
+
+        // Initialize display upon load
+        window.onload = () => { renderChart('savings'); };
+    </script>
+</body>
+</html>
